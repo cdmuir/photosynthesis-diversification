@@ -8,6 +8,8 @@
   letterpaper,
   DIV=11,
   numbers=noendperiod]{scrartcl}
+\usepackage{footnote}
+\usepackage{xparse}
 \usepackage{xcolor}
 \usepackage{amsmath,amssymb}
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
@@ -75,7 +77,6 @@
 \patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
 \makeatother
 % Allow footnotes in longtable head/foot
-\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
 \makesavenoteenv{longtable}
 \usepackage{graphicx}
 \makeatletter
@@ -155,24 +156,26 @@
 % \doublespacing
 
 % make better hyphen for numeric ranges, \numrange{}{}
-\usepackage[detect-none]{siunitx}
-\sisetup{range-phrase = \text{--}}
+% \usepackage[detect-none]{siunitx}
+% \sisetup{range-phrase = \text{--}}
+% Simple replacement for siunitx's \numrange
+\newcommand{\numrange}[2]{#1--#2}
 
 % packages for mathematical notation
 \usepackage{commath}
 \KOMAoption{captions}{tableheading}
 \addtokomafont{disposition}{\rmfamily}
-\RedeclareSectionCommand[
-  font=\normalfont\Large]{section}
-\RedeclareSectionCommand[
-  font=\normalfont\normalsize\bfseries]{subsection}
-\RedeclareSectionCommand[
-  font=\normalfont\normalsize\itshape]{subsubsection}
-\RedeclareSectionCommand[
-  font=\normalfont\normalsize,
-  beforeskip=0.5\baselineskip, % space before the heading
-  afterskip=0.5\baselineskip   % space after the heading (adjust this for spacing between heading and text)
-]{paragraph}
+% \RedeclareSectionCommand[
+%   font=\normalfont\Large]{section}
+% \RedeclareSectionCommand[
+%   font=\normalfont\normalsize\bfseries]{subsection}
+% \RedeclareSectionCommand[
+%   font=\normalfont\normalsize\itshape]{subsubsection}
+% \RedeclareSectionCommand[
+%   font=\normalfont\normalsize,
+%   beforeskip=0.5\baselineskip, % space before the heading
+%   afterskip=0.5\baselineskip   % space after the heading (adjust this for spacing between heading and text)
+% ]{paragraph}
 \makeatletter
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \AtBeginDocument{%
@@ -215,7 +218,6 @@
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
 \makeatother
 \usepackage{bookmark}
-\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
 \hypersetup{
   pdftitle={Is photosynthetic capacity associated with diversification of C\_3 plants?},
@@ -348,7 +350,7 @@ vascular land plant species.
 
 \centering{
 
-\pandocbounded{\includegraphics[keepaspectratio]{ms_files/figure-pdf/fig-phy1-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{fig-phy1-1.eps}}
 
 }
 
@@ -384,7 +386,7 @@ scenario (see Figure~\ref{fig-phy2} for a worked example).
 
 \centering{
 
-\pandocbounded{\includegraphics[keepaspectratio]{ms_files/figure-pdf/fig-phy2-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{fig-phy2-1.eps}}
 
 }
 
@@ -443,7 +445,7 @@ recent geological epochs.
 
 \centering{
 
-\pandocbounded{\includegraphics[keepaspectratio]{ms_files/figure-pdf/fig-strapp-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{fig-strapp-1.eps}}
 
 }
 
