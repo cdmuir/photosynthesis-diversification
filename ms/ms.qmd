@@ -78,7 +78,7 @@ $^*$ Corresponding author: Christopher D. Muir, cdmuir\@wisc.edu
 
 Author contributions: CDM conceived of the ideas and wrote the manuscript.
 
-Data availability statement: Data are available from previously published sources. The code to reproduce analyses is available on GitHub (https://github.com/cdmuir/photosynthesis-diversification) and archived on Zenodo.
+Data availability statement: Data are available from previously published sources. The code to reproduce analyses is available on GitHub (https://github.com/cdmuir/photosynthesis-diversification) and archived on Zenodo (https://doi.org/10.5281/zenodo.17835088).
 
 Word count: 63 in Abstract; 1,038 in Main text
 
