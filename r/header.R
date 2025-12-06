@@ -1,0 +1,22 @@
+rm(list = ls())
+
+library(ape)
+library(BAMMtools)
+library(cowplot)
+library(dplyr)
+library(ggplot2)
+library(glue)
+library(magrittr)
+library(parallel)
+library(posterior)
+library(purrr)
+library(readr)
+library(readxl)
+library(scales)
+library(stringr)
+library(tibble)
+library(tidyr)
+
+source("r/functions.R")
+
+theme_set(theme_cowplot())

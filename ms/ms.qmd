@@ -1,0 +1,297 @@
+---
+title: Is photosynthetic capacity associated with diversification of C$_3$ plants?
+format:
+  pdf:
+    keep-tex: true  
+    include-in-header: 
+      - preamble.tex
+    toc: false
+number-sections: false
+header-includes: |
+  \addtokomafont{disposition}{\rmfamily}
+  \RedeclareSectionCommand[
+    font=\normalfont\Large]{section}
+  \RedeclareSectionCommand[
+    font=\normalfont\normalsize\bfseries]{subsection}
+  \RedeclareSectionCommand[
+    font=\normalfont\normalsize\itshape]{subsubsection}
+  \RedeclareSectionCommand[
+    font=\normalfont\normalsize,
+    beforeskip=0.5\baselineskip, % space before the heading
+    afterskip=0.5\baselineskip   % space after the heading (adjust this for spacing between heading and text)
+  ]{paragraph}
+mainfont: Times New Roman
+execute:
+  echo: false
+  warning: false
+  cache: true
+bibliography: photosynthesis-diversification.bib
+nocite: |
+  @givnish_origin_2009
+csl: ecology-letters.csl
+---
+
+```{r, setup, eval = TRUE, echo = FALSE, include=FALSE}
+
+library(ape)
+library(cowplot)
+library(dplyr)
+library(ggplot2)
+library(ggtree)
+library(glue)
+library(magick)
+library(readr)
+library(stringr)
+library(tibble)
+library(tidyr)
+
+# data from https://wfoplantlist.org/, accessed 4/4/2025
+# 12688 pteridophyta
+# 1 ginkgo
+# 384 cycads
+# 836 pines
+# 345299 angiosperms
+
+n_spp = 12688 + 1 + 384 + 836 + 345299
+n_zanne = 31389
+# bamm_version = system("bamm --version", intern = TRUE) |>
+#   str_extract("([0-9]+\\.[0-9]+\\.[0-9]+)")
+bamm_version = "2.5.0"
+
+df_strapp = read_rds("../objects/df_strapp.rds")
+strapp_Vcmax_speciation = read_rds("../objects/strapp_Vcmax_speciation.rds")
+strapp_Vcmax_diversification = read_rds("../objects/strapp_Vcmax_diversification.rds")
+strapp_Jmax_speciation = read_rds("../objects/strapp_Jmax_speciation.rds")
+strapp_Jmax_diversification = read_rds("../objects/strapp_Jmax_diversification.rds")
+```
+
+```{=tex}
+\begin{center}
+Christopher D. Muir$^{1,*}$
+\end{center}
+```
+$^1$ Department of Botany, University of Wisconsin, Madison, WI, USA 53706
+
+$^*$ Corresponding author: Christopher D. Muir, cdmuir\@wisc.edu
+
+<!-- Manuscript received \_\_\_\_\_\_\_; revision accepted \_\_\_\_\_\_\_. -->
+
+Author contributions: CDM conceived of the ideas and wrote the manuscript.
+
+Data availability statement: Data are available from previously published sources. The code to reproduce analyses is available on GitHub (https://github.com/cdmuir/photosynthesis-diversification) and archived on Zenodo.
+
+Word count: 63 in Abstract; 1,038 in Main text
+
+Running head: Photosynthetic capacity and diversification
+
+Keywords: ancestral state reconstruction, diversification, macroevolution, photosynthesis, phylogenetic comparative methods
+
+\newpage
+
+## Abstract
+
+@schweiger_significant_2024 recently proposed that evolution of greater photosynthetic capacity in C$_3$ plant species may be linked to increased species diversification. This conclusion is premature because their methods cannot reliably estimate diversification rate or ancestral trait values. Reanalyzing the data set using model-based phylogenetic comparative methods reveals no evidence that photosynthetic capacity is associated with diversification rates among C$_3$ plant genera.
+
+## Main text
+
+Phylogenetic comparative methods (PCMs) are widely used to infer historical patterns of species diversification and phenotypic evolution based on the relationships among extant species and their trait values [@pennell_integrative_2013]. Recently @schweiger_significant_2024 purport to show that greater photosynthetic capacity is linked to greater diversification among C$_3$ vascular land plants over the past 80 million years. Specifically, they argue that diversification rates increased along with photosynthetic capacity ($V_\mathrm{cmax}$ and $J_\mathrm{max}$) as atmospheric CO$_2$ decreased throughout the Miocene. This conclusion is premature because the PCMs @schweiger_significant_2024 use to estimate diversification rates and ancestral states do not account for and are highly sensitive to incomplete taxon sampling.
+
+### Diversification analysis
+
+Diversification rates are typically inferred using the distribution of branch lengths in a molecular phylogeny. The reconstructed evolutionary process, even with complete sampling of extant taxa and perfect information, cannot infer the presence of lineages that left no descendants because of extinction [@nee_reconstructed_1994]. Incomplete taxon sampling acts like a recent extinction event because nodes leading to unsampled taxa cannot be inferred. Valid inference of diversification rates must therefore condition on both extinction and incomplete sampling. @schweiger_significant_2024 analyze a molecular phylogeny of vascular land plants containing 232 species, `r prettyNum(signif(100 * 232 / n_spp, 2))`% of the `r prettyNum(n_spp, big.mark = ",")` currently accepted species as of December 2024 [@kindt_worldflora_2020]. They estimate diversification rate as $\log \left(n\right) / t$, where $n$ is the number of tips and $t$ is the stem group age [@magallon_absolute_2001]. Since apparent $n$ is a small fraction of its true value, this statistic cannot estimate diversification rate. The Kendall-Moran estimate of speciation rate used by @schweiger_significant_2024 works for completely sampled phylogenies with no extinction [@baldwin_age_1998], an untenable assumption in this case. @schweiger_significant_2024 compound these errors by pruning tips and branches younger than each time interval for which they estimate diversification rates. Thus, at each interval they artificially remove nodes in the phylogeny, further biasing downward estimates of diversification. 
+
+Random incomplete sampling biases downward estimates of diversification rates in the recent past [@nee_extinction_1994]. The bias caused by random incomplete sampling is opposite the pattern @schweiger_significant_2024 observe of more rapid diversification toward the present. Apparent increases in diversification in younger clades is a general phenomenon not confined to C$_3$ plants [@harmon_causes_2021] that may be a result of bias toward sampling species-rich clades [@louca_scaling_2022]. Reliable inference must address both incomplete and nonrandom sampling.
+
+### Ancestral trait analysis
+
+Unobserved ancestral states must be reconstructed using a probabilistic model of trait evolution, but inferred states are often impossible to independently verify [but see @polly_paleontology_2001]. There is a high likelihood that estimates from misspecified models are misleading [@revell_ancestral_2025].  @schweiger_significant_2024 do not estimate ancestral states based on a trait model, but instead calculate it as the "median trait values from all species that originated in the respective time period," where time period refers to a 5-million-year interval. There are two fundamental errors with this approach. First, because the phylogeny contains a small fraction of all species, the origin time of a species (when it split from its sister species) will be biased upward by an unpredictable amount ([@fig-phy1]a). The nodes used by @schweiger_significant_2024 are on average 315% older than and modestly correlated with (log-log $r^2 = 0.43$) the nodes separating nearest species in the unpruned @zanne_three_2014 tree, which itself contains `r prettyNum(n_zanne, big.mark = ',')` species, representing only `r prettyNum(signif(100 * n_zanne / n_spp, 2))`% of described vascular land plant species.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=8}
+#| label: fig-phy1
+#| fig-cap: '(Caption next page.)'
+
+phy1 = read.tree(text = "((Delissea_subcordata:2.615,Delissea_rhytidosperma:2.615):2.615,(Brighamia_rockii:2.615,Brighamia_insignis:2.615):2.615):0;")
+
+df_tip_data = tibble(
+  label = c("Delissea_subcordata", "Delissea_rhytidosperma", "Brighamia_rockii", "Brighamia_insignis"),
+  label2 = c("Delissea subcordata", "Delissea rhytidosperma", "Brighamia rockii", "Brighamia insignis"),
+  `Is sampled?` = factor(c("no", "yes", "no", "yes"), c("yes", "no"))
+)
+
+df_node_data = tibble(
+  node = 5:7,
+  type = c("Apparent origin", rep("Actual origin", 2))
+)
+
+fig1_panela = ggtree(phy1, color = "white") %<+%
+  df_tip_data %<+%
+  df_node_data +
+  geom_tree(aes(linetype = `Is sampled?`), linewidth = 1.1) +
+  scale_linetype(na.value = "solid", breaks = c("yes", "no")) +
+  scale_x_continuous(
+    limits = c(0, 10.46),
+    breaks = seq(0.23, 5.23, 5),
+    labels = seq(5, 0, -5)
+  ) +
+  geom_tiplab(aes(label = label2), hjust = -0.1, fontface = 3) +
+  geom_nodepoint(aes(fill = type), size = 6, shape = 21, linewidth = 1.1) +
+  scale_fill_manual(values = c("Apparent origin" = "black", "Actual origin" = "white"), name = NULL) +
+  xlab("Myr") +
+  theme_cowplot() +
+  theme(axis.title.x = element_text(size = 12, hjust = 0.1875),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.line.y = element_blank(),
+        axis.ticks.y = element_blank(),
+  )
+
+fig1_panelb = read_rds("../objects/fig1_panelb.rds")
+
+plot_grid(
+  fig1_panela,
+  fig1_panelb,
+  ncol = 1,
+  labels = c("A)", "B)"),
+  label_size = 14,
+  rel_widths = c(1, 1)
+)
+
+```
+
+\addtocounter{figure}{-1}
+\begin{figure}[t!]
+\caption{(Previous page). The method Schweiger \& Schweiger (2024) use to infer when a species originated is misleading when taxon sampling is incomplete. (A) For example, the Hawaiian lobeliads \textit{Brighamia insignis} A. Gray and \textit{Delissea rhytidosperma} H. Mann in their data set are inferred by this method to have ``originated'' 5.23 mya, as shown in the phylogeny above. This apparent origin (black point on more ancient node) is an artifact of more closely related congeneric species (*B. rockii* H. St. John and *D. subcordata* Gaudich.) not being sampled (dashed branches leading to unsampled species). The node of the apparent origin represents the most recent common ancestor of these species, but both species actually diverged from more closely related species much more recently (white points). The timing of divergence from putative sister species is approximate and for illustration purposes only (based on Givnish \textit{et al.} 2009). (B) The consequences of this methodological choice are that the divergence times used by Schweiger \& Schweiger (2024) ($y$-axis) are biased upward by an average of 315\% and modestly correlated ($r^2 = 0.43$ on log-log scale) with the divergence times estimated from the full phylogeny ($x$-axis) from Zanne \textit{et al.} (2014). Those divergence times are themselves only loosely related to the true divergence time between sister species because of mostly incomplete sampling even in the unpruned Zanne \textit{et al.} (2014) phylogeny.}
+\end{figure}
+
+Second, the method for estimating average trait values in past intervals implies strong and unrealistic assumptions about trait evolution, is inappropriate for a sparsely sampled phylogeny, and is highly sensitive to small differences in taxon sampling. Even if species' origination dates were inferred correctly, estimating ancestral states by assuming they are equal to the state of the extant descendant implies all trait evolution occurs during speciation events (cladogenic) and not along lineages (anagenic). Assuming cladogenic evolution is especially problematic in this case because most nodes in the phylogeny are not sampled, thereby missing most cladogenic events when trait change would occur by their implied assumptions. A median of 7 nodes per species were pruned from the @zanne_three_2014 phylogeny in their analysis, but this is a severe undercount of missing nodes because of both incomplete sampling in the unpruned tree and extinction. Finally, estimates of past trait values using this method are highly sensitive to small changes in taxon sampling. A minor change in sampling can result in quite different estimates even with the same underlying evolutionary scenario (see @fig-phy2 for a worked example).
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+#| label: fig-phy2
+#| fig-cap: "The method @schweiger_significant_2024 use to estimate ancestral trait values is sensitive to small differences in taxon sampling. Assume we know the true phylogeny of four species A, B, C, and D (left). The species A and B are sister species that split 2.5 mya, likewise for C and D. The common ancestor of all four split 7.5 mya. If we sampled all four species, their trait values would contribute to the estimated average trait value in the interval between 0 and 5 mya. This clade would not contribute to the estimated average trait value in the interval between 5 and 10 mya because the species did not originate in that interval. However, it is clear that the ancestors of these species must have existed during that interval. Now consider the effect of incomplete sampling. If species D were not sampled, then the trait values for A and B would contribute to the 0-5 mya interval and species C would contribute to the 5-10 mya interval.The species used to calculate average trait values at different time intervals changes depending on whether all species are sampled or a subset are sampled (right), even though the underlying biological reality is unchanged."
+
+tab1 = image_read("tab1.pdf", density = 600)
+phy1 = read.tree(text = "((D:2.5,C:2.5):5,(B:2.5,A:2.5):5):2.5;")
+p1 = ggtree(phy1, linewidth = 1.1) +
+  geom_vline(xintercept = 2.5,
+             linetype = "dashed",
+             color = "grey") +
+  geom_rootedge(linewidth = 1.1) +
+  scale_x_continuous(
+    limits = c(-2.5, 20),
+    breaks = seq(-2.5, 7.5, 2.5),
+    labels = seq(10, 0, -2.5)
+  ) +
+  geom_tiplab(hjust = -0.2) +
+  ggtitle("Hypothetical phylogeny of four species") +
+  xlab("Myr") +
+  theme_cowplot() +
+  theme(axis.title.x = element_text(size = 12, hjust = 0.1875),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.line.y = element_blank(),
+        axis.ticks.y = element_blank(),
+  )
+
+ggdraw() + 
+  draw_plot(p1) +
+  draw_image(
+    tab1, x = 0.55, y = 0,
+    width = 0.4
+  )
+```
+
+### No evidence that photosynthetic capacity is linked to diversification in seed plants
+
+Several PCMs have been developed in the past decade to estimate whether diversification rates vary among lineages and through time in association with traits [@martinez-gomez_commonly_2024; @morlon_phylogenetic_2024]. These methods account for extinction and incomplete sampling and therefore can, in principle, test whether diversification is associated with traits like $V_\text{cmax}$ or $J_\text{max}$. When extinction and incomplete sampling are accounted for using BAMM version `r bamm_version` [@rabosky_automatic_2014] on a nearly-complete phylogeny of seed plant genera [@dimitrov_diversification_2023], there is no evidence that speciation or net diversification rates are associated with $V_\text{cmax}$ or $J_\text{max}$ (@fig-strapp) based on permutation tests developed by @rabosky_robust_2016 (see Supporting Information). This method answers a slightly different question than that posed by @schweiger_significant_2024 because it tests for an association between tip rates and traits, not ancestral rates and traits. However, the tip rates of many genera encompass much of the Miocene when global CO$_2$ declined and tip rates suffer from fewer identifiability issues [@louca_extant_2020]. Alternative methods not considered here are CLaDS2 [@barido-sottani_clads_2023] and QuaSSE [@fitzjohn_quantitative_2010]. While these PCMs account for extinction and incomplete sampling, no method performs well when taxon sampling is extremely sparse, samples are biased, or when making inferences about the deep past from extant taxa. Certain questions may be better suited to specific clades with (near-)complete sampling [@donoghue_model_2019], well resolved and fossil-calibrated nodes, and to relatively recent geological epochs.
+
+```{r, fig.width = 6, fig.height = 6, echo = FALSE, message = FALSE, warning = FALSE}
+#| label: fig-strapp
+#| fig-cap: "No evidence that photosynthetic capacity explains variation in speciation or net diversification rates among C$_3$ seed plant genera. Net diversification (top row) and speciation (bottom row) rates estimated using BAMM version 2.5.0 on a nearly-complete phylogeny of seed plant genera [@dimitrov_diversification_2023] are not significantly associated with average $J_\\mathrm{max}$ (left column) or $V_\\mathrm{cmax}$ (right column) based on STRAPP permutation tests [@rabosky_robust_2016]. Both axes are log-scaled. The estimated Pearson product moment correlation $r$ and permutation based $P$-values from two-tailed tests are in the upper-left of each facet."
+
+df_text = tribble(
+  ~ x,
+  ~ y,
+  ~ rate1,
+  ~ trait1,
+  ~ label,
+  10,
+  0.3,
+  "speciation",
+  "italic(V)[c*','*max]",
+  glue(
+    "atop(italic(r) == {r}, italic(P) == {p})",
+    r = prettyNum(strapp_Vcmax_speciation$estimate, digits = 2),
+    p = prettyNum(strapp_Vcmax_speciation$p.value, digits = 2)
+  ),
+  10,
+  0.3,
+  "net~diversification",
+  "italic(V)[c*','*max]",
+  glue(
+    "atop(italic(r) == {r}, italic(P) == {p})",
+    r = prettyNum(strapp_Vcmax_diversification$estimate, digits = 2),
+    p = prettyNum(strapp_Vcmax_diversification$p.value, digits = 2)
+  ),
+  10,
+  0.3,
+  "speciation",
+  "italic(J)[max]",
+  glue(
+    "atop(italic(r) == {r}, italic(P) == {p})",
+    r = prettyNum(strapp_Jmax_speciation$estimate, digits = 2),
+    p = prettyNum(strapp_Jmax_speciation$p.value, digits = 2)
+  ),
+  10,
+  0.3,
+  "net~diversification",
+  "italic(J)[max]",
+  glue(
+    "atop(italic(r) == {r}, italic(P) == {p})",
+    r = prettyNum(strapp_Jmax_diversification$estimate, digits = 2),
+    p = prettyNum(strapp_Jmax_diversification$p.value, digits = 2)
+  ),
+)
+
+df_strapp |>
+  select(-mu) |>
+  pivot_longer(cols = c(lambda, netdiv),
+               names_to = "rate", values_to = "y") |>
+  pivot_longer(cols = c(Vcmax, Jmax),
+               names_to = "trait", values_to = "x") |>
+  mutate(rate1 = recode(rate,
+                       lambda = "speciation",
+                       netdiv = "net~diversification"),
+         trait1 = recode(trait,
+                        Vcmax = "italic(V)[c*','*max]",
+                        Jmax = "italic(J)[max]")) |>
+  ggplot(aes(x, y)) +
+  facet_grid(rate1 ~ trait1, scales = "free_x", labeller = "label_parsed") +
+  geom_text(data = df_text, aes(x, y, label = label), parse = TRUE,
+            hjust = 0, vjust = 0, size = 3) +
+  geom_point() +
+  scale_x_log10() +
+  scale_y_log10() +
+  xlab(expression("photosynthetic capacity [\u00B5mol" ~ m^-2 ~ s^-1*"]")) +
+  ylab(expression("diversification rate [" * Myr^-1*"]")) +
+  theme_cowplot()
+
+```
+
+## Acknowledgments
+
+Andreas Schweiger and two anonymous reviewers provided constructive feedback on an earlier draft of this manuscript. CDM is supported by the National Science Foundation (DEB-2131817). Support for this research was provided by the Office of the Vice Chancellor for Research and Graduate Education at the University of Wisconsin-Madison with funding from the Wisconsin Alumni Research Foundation. The author declares no conflicts of interest.
+
+\clearpage
+
+# References
+
+:::: {#refs}
+:::
+
+\clearpage
+
+# Supporting Information
+
+## Estimating the relationshp between photosynthetic capacity and diversification rates using BAMM
+
+The speciation and net diversification rates estimated by @dimitrov_diversification_2023 were unavailable from the authors, but I reanalyzed their molecular phylogeny of seed plant genera using their sampling fractions and following the same procedures in BAMM as described in their paper. For the STRAPP analysis, I estimated the correlation between log-transformed rates and traits using 1000 permutations to generate the null distribution of the Pearson product-moment correlation. The $V_\mathrm{c,max}$ and $J_\mathrm{max}$ trait data from @schweiger_significant_2024 were averaged at the genus level when more than one species per genus was present. This was necessary because @dimitrov_diversification_2023 estimated a single diversification rate per genus. Although this method uses macroevolutionary models to account for extinction and incomplete sampling, the results should be interpreted with extreme caution. For example, it does not account for uncertainty in the phylogeny, the species sampling is extremely sparse, variation within genera is ignored, and temporal variation in diversification rates may not be identifiable from extant taxa only [@louca_extant_2020]. 

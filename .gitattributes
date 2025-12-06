@@ -1,0 +1,2 @@
+bamm/event_data.txt filter=lfs diff=lfs merge=lfs -text
+objects/*.rds filter=lfs diff=lfs merge=lfs -text
