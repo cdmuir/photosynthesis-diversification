@@ -1,4 +1,4 @@
-![DOI](https://zenodo.org/badge/1110887772.svg)](https://doi.org/10.5281/zenodo.17835088)
+![DOI](https://zenodo.org/badge/1110887772.svg)]
 
 # photosynthesis-diversification
 
